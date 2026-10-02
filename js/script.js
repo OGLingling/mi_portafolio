@@ -4,39 +4,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const form = document.getElementById('add-project-form');
     const projectsGrid = document.getElementById('projects-grid');
-    const secretTrigger = document.getElementById('secret-trigger');
+    const loginTrigger = document.getElementById('login-trigger');
+    const loginModal = document.getElementById('login-modal');
+    const closeModal = document.getElementById('close-modal');
+    const loginBtn = document.getElementById('login-btn');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginError = document.getElementById('login-error');
     const terminalBody = document.getElementById('terminal-body');
 
     // 1. Manejo del Modo Admin - SIEMPRE inactivo al inicio
     let isEditMode = false;
     document.body.classList.remove('edit-mode'); 
 
-    let clickCount = 0;
-    let clickTimeout = null;
+    // Login Modal Handlers
+    loginTrigger.addEventListener('click', () => {
+        loginModal.classList.add('show');
+        usernameInput.focus();
+    });
 
-    secretTrigger.addEventListener('click', () => {
-        clickCount++;
-        
-        if (clickCount === 3) {
-            toggleEditMode();
-            clickCount = 0;
-            clearTimeout(clickTimeout);
-        } else {
-            clearTimeout(clickTimeout);
-            clickTimeout = setTimeout(() => {
-                clickCount = 0;
-            }, 600);
+    closeModal.addEventListener('click', () => {
+        loginModal.classList.remove('show');
+        loginError.style.display = 'none';
+        usernameInput.value = '';
+        passwordInput.value = '';
+    });
+
+    // Cierra el modal si se hace clic afuera del contenido
+    window.addEventListener('click', (e) => {
+        if (e.target === loginModal) {
+            loginModal.classList.remove('show');
+            loginError.style.display = 'none';
         }
     });
 
-    function toggleEditMode() {
-        isEditMode = !isEditMode;
-        if (isEditMode) {
+    loginBtn.addEventListener('click', () => {
+        const user = usernameInput.value.trim();
+        const pass = passwordInput.value;
+
+        if (user === 'LazyEngineer' && pass === 'amoprogramar') {
+            isEditMode = true;
             document.body.classList.add('edit-mode');
+            loginModal.classList.remove('show');
+            usernameInput.value = '';
+            passwordInput.value = '';
+            loginError.style.display = 'none';
         } else {
-            document.body.classList.remove('edit-mode');
+            loginError.style.display = 'block';
+            passwordInput.value = '';
         }
-    }
+    });
+
+    // Permitir enviar el form con Enter
+    passwordInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') {
+            loginBtn.click();
+        }
+    });
 
     // 2. Animación de Fondo - Canvas Partículas (Red neuronal)
     const canvas = document.getElementById('network-canvas');
@@ -218,27 +242,71 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const title = document.getElementById('project-title').value;
-        const imageUrl = document.getElementById('project-img').value;
+        const fileInput = document.getElementById('project-img');
         const desc = document.getElementById('project-desc').value;
         const url = document.getElementById('project-url').value;
         const techString = document.getElementById('project-tech').value;
         
         const technologies = techString.split(',').map(tech => tech.trim()).filter(tech => tech !== '');
 
-        const newProject = {
-            id: Date.now().toString(),
-            title: title,
-            imageUrl: imageUrl,
-            description: desc,
-            url: url,
-            technologies: technologies
-        };
+        if (fileInput.files && fileInput.files[0]) {
+            compressImage(fileInput.files[0], (base64Image) => {
+                const newProject = {
+                    id: Date.now().toString(),
+                    title: title,
+                    imageUrl: base64Image,
+                    description: desc,
+                    url: url,
+                    technologies: technologies
+                };
 
-        saveProject(newProject);
-        renderProject(newProject, true); 
-        
-        form.reset();
+                try {
+                    saveProject(newProject);
+                    renderProject(newProject, true); 
+                    form.reset();
+                } catch (err) {
+                    alert('Error: La memoria local está llena. Intenta eliminar proyectos antiguos antes de agregar nuevos.');
+                }
+            });
+        }
     });
+
+    // Función para comprimir la imagen local y convertirla a Base64
+    function compressImage(file, callback) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Comprimir a JPEG con calidad 70%
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                callback(dataUrl);
+            }
+        };
+    }
 
     function saveProject(project) {
         let projects = getProjects();

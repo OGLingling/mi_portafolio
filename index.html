@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="img/favicon.jpg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -14,14 +15,33 @@
     <!-- Partículas Dinámicas de Fondo -->
     <canvas id="network-canvas"></canvas>
 
-    <!-- Zona oculta para habilitar edición -->
-    <div id="secret-trigger" class="secret-trigger" title=""></div>
+    <!-- Botón de acceso admin -->
+    <img src="img/favicon.jpg" id="login-trigger" class="login-trigger" alt="Admin" title="Acceso Admin">
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content glass-form">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2 style="color: var(--primary-color); font-family: var(--font-mono); margin-bottom: 20px;">/ Admin Access</h2>
+            <div class="form-group">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password">
+            </div>
+            <button id="login-btn" class="btn pulse-btn" style="width: 100%;">Ingresar</button>
+            <p id="login-error" style="color: var(--danger-color); margin-top: 15px; display: none; font-family: var(--font-mono); font-size: 0.9rem;">> Acceso denegado.</p>
+        </div>
+    </div>
     
     <header class="glass-header">
         <div class="container">
             <div class="brand">
-                <h1 class="glitch-text" data-text="Portafolio, Lino Ling">Portafolio, Lino Ling</h1>
-                <span class="subtitle">LazyEngineer</span>
+                <h1 class="glitch-text" data-text="Portafolio">Portafolio</h1>
+                <span class="subtitle">Ingeniería de software con IA - Lino Ling</span>
+                <span class="subtitle-2">LazyEngineer</span>
             </div>
             <nav>
                 <ul>
@@ -92,8 +112,8 @@
                         <input type="text" id="project-title" required>
                     </div>
                     <div class="form-group">
-                        <label for="project-img">URL de la Imagen:</label>
-                        <input type="url" id="project-img" placeholder="https://ejemplo.com/imagen.jpg">
+                        <label for="project-img">Imagen del Proyecto:</label>
+                        <input type="file" id="project-img" accept="image/*" required>
                     </div>
                     <div class="form-group">
                         <label for="project-desc">Descripción:</label>
