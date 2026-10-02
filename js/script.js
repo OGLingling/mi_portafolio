@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Manejo del Modo Admin - SIEMPRE inactivo al inicio
     let isEditMode = false;
-    document.body.classList.remove('edit-mode'); // Asegurarnos de que está desactivado
+    document.body.classList.remove('edit-mode'); 
 
     let clickCount = 0;
     let clickTimeout = null;
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
         
-        setTimeout(typeCmd, 1000); // Esperar 1s después de hacer reveal
+        setTimeout(typeCmd, 1000); 
     }
 
     const revealObserver = new IntersectionObserver(function(entries, observer) {
@@ -199,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             entry.target.classList.add('active');
             
-            // Si es la sección "Sobre Mí", activar el terminal
             if(entry.target.querySelector('#terminal-view')) {
                 runTerminalAnimation();
             }
@@ -219,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const title = document.getElementById('project-title').value;
+        const imageUrl = document.getElementById('project-img').value;
         const desc = document.getElementById('project-desc').value;
         const url = document.getElementById('project-url').value;
         const techString = document.getElementById('project-tech').value;
@@ -228,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newProject = {
             id: Date.now().toString(),
             title: title,
+            imageUrl: imageUrl,
             description: desc,
             url: url,
             technologies: technologies
@@ -253,13 +254,15 @@ document.addEventListener('DOMContentLoaded', () => {
                  const defaultProject = {
                     id: '1',
                     title: 'Automated Scripting Tool',
-                    description: 'Herramienta de automatización desarrollada para reducir tiempos de despliegue y tareas repetitivas en servidores locales usando contenedores.',
+                    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800',
+                    description: 'Herramienta de automatización desarrollada para reducir tiempos de despliegue y tareas repetitivas en servidores locales.',
                     url: '#',
                     technologies: ['Python', 'Bash', 'Docker']
                  };
                  const defaultProject2 = {
                     id: '2',
                     title: 'API Gateway Microservicio',
+                    imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800',
                     description: 'Servicio centralizado para enrutamiento y rate-limiting de un ecosistema de aplicaciones distribuidas.',
                     url: '#',
                     technologies: ['Node.js', 'Redis', 'Express']
@@ -298,8 +301,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         let linkHTML = project.url ? `<a href="${project.url}" target="_blank" class="btn-outline">Ver Repositorio</a>` : '';
+        let imageHTML = project.imageUrl ? `<img src="${project.imageUrl}" alt="${project.title}" class="project-image">` : '';
 
         card.innerHTML = `
+            ${imageHTML}
             <button class="delete-btn admin-only" onclick="deleteProject('${project.id}')" title="Eliminar proyecto"><i class="fas fa-trash"></i></button>
             <h3>${project.title}</h3>
             <p>${project.description}</p>

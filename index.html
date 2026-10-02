@@ -43,22 +43,31 @@
             </div>
         </section>
 
-        <!-- Nueva Sección Dinámica Sobre Mí -->
+        <!-- Nueva Sección Dinámica Sobre Mí con Foto -->
         <section id="sobre-mi" class="about-section">
             <div class="container reveal">
                 <h2 class="section-title">/ Sobre Mí</h2>
                 
-                <div class="terminal-window" id="terminal-view">
-                    <div class="terminal-header">
-                        <div class="terminal-buttons">
-                            <span class="close-btn"></span>
-                            <span class="min-btn"></span>
-                            <span class="max-btn"></span>
+                <div class="about-grid">
+                    <div class="profile-container">
+                        <div class="profile-frame">
+                            <img src="img/perfil.jpg" alt="Lino Ling" class="profile-pic">
+                            <div class="scanline"></div>
                         </div>
-                        <div class="terminal-title">user@senati: ~</div>
                     </div>
-                    <div class="terminal-body" id="terminal-body">
-                        <!-- El texto se escribirá dinámicamente aquí usando JS -->
+
+                    <div class="terminal-window" id="terminal-view">
+                        <div class="terminal-header">
+                            <div class="terminal-buttons">
+                                <span class="close-btn"></span>
+                                <span class="min-btn"></span>
+                                <span class="max-btn"></span>
+                            </div>
+                            <div class="terminal-title">user@senati: ~</div>
+                        </div>
+                        <div class="terminal-body" id="terminal-body">
+                            <!-- El texto se escribirá dinámicamente aquí usando JS -->
+                        </div>
                     </div>
                 </div>
                 
@@ -83,11 +92,15 @@
                         <input type="text" id="project-title" required>
                     </div>
                     <div class="form-group">
+                        <label for="project-img">URL de la Imagen:</label>
+                        <input type="url" id="project-img" placeholder="https://ejemplo.com/imagen.jpg">
+                    </div>
+                    <div class="form-group">
                         <label for="project-desc">Descripción:</label>
                         <textarea id="project-desc" rows="4" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="project-url">URL (Opcional):</label>
+                        <label for="project-url">URL del Código/Demo (Opcional):</label>
                         <input type="url" id="project-url">
                     </div>
                     <div class="form-group">
