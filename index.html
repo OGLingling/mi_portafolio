@@ -1,11 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Mi Portafolio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    
+    <header>
+        <div class="container">
+            <h1>Mi Portafolio</h1>
+            <nav>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#proyectos">Proyectos</a></li>
+                    <li><a href="#agregar">Agregar Proyecto</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="inicio" class="hero">
+            <div class="container">
+                <h2>¡Hola! Soy un Desarrollador Web</h2>
+                <p>Bienvenido a mi portafolio personal. Aquí podrás ver los proyectos que he realizado a lo largo de mi carrera.</p>
+            </div>
+        </section>
+
+        <section id="proyectos" class="projects-section">
+            <div class="container">
+                <h2>Mis Proyectos</h2>
+                <div class="projects-grid" id="projects-grid">
+                    <!-- Los proyectos se insertarán aquí dinámicamente con JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section id="agregar" class="add-project-section">
+            <div class="container">
+                <h2>Agregar Nuevo Proyecto</h2>
+                <form id="add-project-form">
+                    <div class="form-group">
+                        <label for="project-title">Título del Proyecto:</label>
+                        <input type="text" id="project-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-desc">Descripción:</label>
+                        <textarea id="project-desc" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-url">URL del Proyecto (Opcional):</label>
+                        <input type="url" id="project-url">
+                    </div>
+                    <div class="form-group">
+                        <label for="project-tech">Tecnologías (separadas por comas):</label>
+                        <input type="text" id="project-tech" placeholder="Ej: HTML, CSS, JavaScript" required>
+                    </div>
+                    <button type="submit" class="btn">Guardar Proyecto</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="year"></span> Mi Portafolio. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
