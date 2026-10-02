@@ -11,9 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Background Animated Shapes -->
-    <div class="bg-shape shape1"></div>
-    <div class="bg-shape shape2"></div>
+    <!-- Partículas Dinámicas de Fondo -->
+    <canvas id="network-canvas"></canvas>
 
     <!-- Zona oculta para habilitar edición -->
     <div id="secret-trigger" class="secret-trigger" title=""></div>
@@ -21,11 +20,12 @@
     <header class="glass-header">
         <div class="container">
             <div class="brand">
-                <h1>Portafolio, Lino Ling</h1>
+                <h1 class="glitch-text" data-text="Portafolio, Lino Ling">Portafolio, Lino Ling</h1>
                 <span class="subtitle">LazyEngineer</span>
             </div>
             <nav>
                 <ul>
+                    <li><a href="#sobre-mi">Sobre Mí</a></li>
                     <li><a href="#proyectos">Proyectos</a></li>
                     <li class="admin-only"><a href="#agregar">Administrar</a></li>
                 </ul>
@@ -40,6 +40,28 @@
                     <p class="greeting typing">&gt; Hola Mundo _</p>
                 </div>
                 <h2 class="reveal">Construyendo soluciones eficientes con el mínimo esfuerzo necesario.</h2>
+            </div>
+        </section>
+
+        <!-- Nueva Sección Dinámica Sobre Mí -->
+        <section id="sobre-mi" class="about-section">
+            <div class="container reveal">
+                <h2 class="section-title">/ Sobre Mí</h2>
+                
+                <div class="terminal-window" id="terminal-view">
+                    <div class="terminal-header">
+                        <div class="terminal-buttons">
+                            <span class="close-btn"></span>
+                            <span class="min-btn"></span>
+                            <span class="max-btn"></span>
+                        </div>
+                        <div class="terminal-title">user@senati: ~</div>
+                    </div>
+                    <div class="terminal-body" id="terminal-body">
+                        <!-- El texto se escribirá dinámicamente aquí usando JS -->
+                    </div>
+                </div>
+                
             </div>
         </section>
 
