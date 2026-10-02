@@ -11,10 +11,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Background Animated Shapes -->
+    <div class="bg-shape shape1"></div>
+    <div class="bg-shape shape2"></div>
+
     <!-- Zona oculta para habilitar edición -->
     <div id="secret-trigger" class="secret-trigger" title=""></div>
     
-    <header>
+    <header class="glass-header">
         <div class="container">
             <div class="brand">
                 <h1>Portafolio, Lino Ling</h1>
@@ -32,24 +36,26 @@
     <main>
         <section id="inicio" class="hero">
             <div class="container">
-                <p class="greeting">&gt; Hola Mundo _</p>
-                <h2>Construyendo soluciones eficientes con el mínimo esfuerzo necesario.</h2>
+                <div class="greeting-wrapper">
+                    <p class="greeting typing">&gt; Hola Mundo _</p>
+                </div>
+                <h2 class="reveal">Construyendo soluciones eficientes con el mínimo esfuerzo necesario.</h2>
             </div>
         </section>
 
         <section id="proyectos" class="projects-section">
             <div class="container">
-                <h2 class="section-title">/ Mis Proyectos</h2>
+                <h2 class="section-title reveal">/ Mis Proyectos</h2>
                 <div class="projects-grid" id="projects-grid">
                     <!-- Los proyectos se insertarán aquí dinámicamente con JavaScript -->
                 </div>
             </div>
         </section>
 
-        <section id="agregar" class="add-project-section admin-only">
+        <section id="agregar" class="add-project-section admin-only reveal">
             <div class="container">
                 <h2 class="section-title">/ Nuevo Proyecto</h2>
-                <form id="add-project-form">
+                <form id="add-project-form" class="glass-form">
                     <div class="form-group">
                         <label for="project-title">Título:</label>
                         <input type="text" id="project-title" required>
@@ -66,14 +72,14 @@
                         <label for="project-tech">Tecnologías (comas):</label>
                         <input type="text" id="project-tech" placeholder="Ej: React, Node, Express" required>
                     </div>
-                    <button type="submit" class="btn">Deploy &gt;_</button>
+                    <button type="submit" class="btn pulse-btn">Deploy &gt;_</button>
                 </form>
             </div>
         </section>
     </main>
 
     <footer>
-        <div class="container">
+        <div class="container reveal">
             <p>&copy; <span id="year"></span> Lino Ling. <span class="admin-indicator admin-only">[Modo Edición]</span></p>
         </div>
     </footer>

@@ -6,10 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectsGrid = document.getElementById('projects-grid');
     const secretTrigger = document.getElementById('secret-trigger');
 
+    // Handle Edit Mode
     let isEditMode = localStorage.getItem('portfolio_edit_mode') === 'true';
     if(isEditMode) document.body.classList.add('edit-mode');
 
-    // Secret Triple Click Logic
     let clickCount = 0;
     let clickTimeout = null;
 
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(clickTimeout);
             clickTimeout = setTimeout(() => {
                 clickCount = 0;
-            }, 600); // 600ms window to click 3 times
+            }, 600);
         }
     });
 
@@ -38,10 +38,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Load projects from localStorage on page load
+    // Scroll Reveal Animation Observer
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealOptions = {
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const revealObserver = new IntersectionObserver(function(entries, observer) {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) {
+                return;
+            }
+            entry.target.classList.add('active');
+            observer.unobserve(entry.target);
+        });
+    }, revealOptions);
+
+    // Initial observe
+    revealElements.forEach(el => {
+        revealObserver.observe(el);
+    });
+
+    // Load Projects
     loadProjects();
 
-    // Handle form submission
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -61,33 +82,37 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         saveProject(newProject);
-        renderProject(newProject);
+        renderProject(newProject, true); // true to add animation
         
         form.reset();
     });
 
-    // Save project to localStorage
     function saveProject(project) {
         let projects = getProjects();
         projects.push(project);
         localStorage.setItem('portfolio_projects', JSON.stringify(projects));
     }
 
-    // Get projects from localStorage
     function getProjects() {
         let projects;
         if(localStorage.getItem('portfolio_projects') === null) {
             projects = [];
-            // default projects for showcase
             if (projects.length === 0) {
                  const defaultProject = {
                     id: '1',
                     title: 'Automated Scripting Tool',
-                    description: 'Herramienta de automatización desarrollada para reducir tiempos de despliegue y tareas repetitivas en servidores locales.',
+                    description: 'Herramienta de automatización desarrollada para reducir tiempos de despliegue y tareas repetitivas en servidores locales usando contenedores.',
                     url: '#',
                     technologies: ['Python', 'Bash', 'Docker']
                  };
-                 projects.push(defaultProject);
+                 const defaultProject2 = {
+                    id: '2',
+                    title: 'API Gateway Microservicio',
+                    description: 'Servicio centralizado para enrutamiento y rate-limiting de un ecosistema de aplicaciones distribuidas.',
+                    url: '#',
+                    technologies: ['Node.js', 'Redis', 'Express']
+                 };
+                 projects.push(defaultProject, defaultProject2);
                  localStorage.setItem('portfolio_projects', JSON.stringify(projects));
             }
         } else {
@@ -96,17 +121,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return projects;
     }
 
-    // Load and render all projects
     function loadProjects() {
         projectsGrid.innerHTML = '';
         const projects = getProjects();
-        projects.forEach(project => renderProject(project));
+        projects.forEach(project => renderProject(project, false));
     }
 
-    // Render a single project card
-    function renderProject(project) {
+    function renderProject(project, animateNew = false) {
         const card = document.createElement('div');
         card.classList.add('project-card');
+        
+        if (animateNew) {
+            card.style.animation = 'scaleIn 0.5s ease-out forwards';
+        } else {
+            card.classList.add('reveal');
+            revealObserver.observe(card);
+        }
+        
         card.dataset.id = project.id;
 
         let techHTML = '';
@@ -129,13 +160,23 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsGrid.appendChild(card);
     }
 
-    // Make deleteProject globally available
     window.deleteProject = function(id) {
         if(confirm('¿Eliminar registro del proyecto?')) {
             let projects = getProjects();
             projects = projects.filter(project => project.id !== id);
             localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-            loadProjects(); 
+            
+            // Add disappearing animation
+            const card = document.querySelector(`.project-card[data-id="${id}"]`);
+            if(card) {
+                card.style.transform = 'scale(0.8)';
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    loadProjects(); 
+                }, 300);
+            } else {
+                loadProjects();
+            }
         }
     };
 });
