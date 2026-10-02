@@ -4,6 +4,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const form = document.getElementById('add-project-form');
     const projectsGrid = document.getElementById('projects-grid');
+    const secretTrigger = document.getElementById('secret-trigger');
+
+    let isEditMode = localStorage.getItem('portfolio_edit_mode') === 'true';
+    if(isEditMode) document.body.classList.add('edit-mode');
+
+    // Secret Triple Click Logic
+    let clickCount = 0;
+    let clickTimeout = null;
+
+    secretTrigger.addEventListener('click', () => {
+        clickCount++;
+        
+        if (clickCount === 3) {
+            toggleEditMode();
+            clickCount = 0;
+            clearTimeout(clickTimeout);
+        } else {
+            clearTimeout(clickTimeout);
+            clickTimeout = setTimeout(() => {
+                clickCount = 0;
+            }, 600); // 600ms window to click 3 times
+        }
+    });
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        localStorage.setItem('portfolio_edit_mode', isEditMode);
+        if (isEditMode) {
+            document.body.classList.add('edit-mode');
+        } else {
+            document.body.classList.remove('edit-mode');
+        }
+    }
 
     // Load projects from localStorage on page load
     loadProjects();
@@ -30,9 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveProject(newProject);
         renderProject(newProject);
         
-        // Reset form
         form.reset();
-        alert('¡Proyecto agregado con éxito!');
     });
 
     // Save project to localStorage
@@ -47,14 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
         let projects;
         if(localStorage.getItem('portfolio_projects') === null) {
             projects = [];
-            // Add a default project if empty
+            // default projects for showcase
             if (projects.length === 0) {
                  const defaultProject = {
                     id: '1',
-                    title: 'Ejemplo de Proyecto',
-                    description: 'Esta es una descripción de ejemplo para tu primer proyecto. Puedes eliminarlo y agregar los tuyos.',
+                    title: 'Automated Scripting Tool',
+                    description: 'Herramienta de automatización desarrollada para reducir tiempos de despliegue y tareas repetitivas en servidores locales.',
                     url: '#',
-                    technologies: ['HTML', 'CSS', 'JavaScript']
+                    technologies: ['Python', 'Bash', 'Docker']
                  };
                  projects.push(defaultProject);
                  localStorage.setItem('portfolio_projects', JSON.stringify(projects));
@@ -83,10 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
             techHTML += `<span class="tech-tag">${tech}</span>`;
         });
 
-        let linkHTML = project.url ? `<a href="${project.url}" target="_blank" class="btn">Ver Proyecto</a>` : '';
+        let linkHTML = project.url ? `<a href="${project.url}" target="_blank" class="btn-outline">Ver Repositorio</a>` : '';
 
         card.innerHTML = `
-            <button class="delete-btn" onclick="deleteProject('${project.id}')" title="Eliminar proyecto"><i class="fas fa-trash"></i></button>
+            <button class="delete-btn admin-only" onclick="deleteProject('${project.id}')" title="Eliminar proyecto"><i class="fas fa-trash"></i></button>
             <h3>${project.title}</h3>
             <p>${project.description}</p>
             <div class="project-tech">
@@ -100,11 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Make deleteProject globally available
     window.deleteProject = function(id) {
-        if(confirm('¿Estás seguro de que deseas eliminar este proyecto?')) {
+        if(confirm('¿Eliminar registro del proyecto?')) {
             let projects = getProjects();
             projects = projects.filter(project => project.id !== id);
             localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-            loadProjects(); // Reload the grid
+            loadProjects(); 
         }
     };
 });

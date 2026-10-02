@@ -1,9 +1,12 @@
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --bg-color: #f4f7f6;
-    --text-color: #333;
-    --white: #fff;
+    --bg-color: #0f111a;
+    --surface-color: #1a1d27;
+    --primary-color: #00ff9d;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --danger-color: #ef4444;
+    --font-mono: 'Fira Code', monospace;
+    --font-sans: 'Inter', sans-serif;
 }
 
 * {
@@ -13,104 +16,121 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
+    font-family: var(--font-sans);
     background-color: var(--bg-color);
-    color: var(--text-color);
+    color: var(--text-primary);
+    line-height: 1.6;
     scroll-behavior: smooth;
 }
 
 .container {
     width: 90%;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: auto;
-    overflow: hidden;
     padding: 0 20px;
+}
+
+/* Secret Trigger (Top Right) */
+.secret-trigger {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    z-index: 9999;
+    cursor: default; /* Invisible, sin rastro */
 }
 
 /* Header */
 header {
-    background: var(--primary-color);
-    color: var(--white);
-    padding: 1rem 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 header .container {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
 }
 
-header h1 {
-    font-size: 1.8rem;
+.brand h1 {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.brand .subtitle {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-top: 5px;
 }
 
 nav ul {
     list-style: none;
     display: flex;
+    gap: 30px;
 }
 
-nav ul li {
-    margin-left: 20px;
-}
-
-nav ul li a {
-    color: var(--white);
+nav a {
+    color: var(--text-secondary);
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    transition: color 0.2s;
 }
 
-nav ul li a:hover {
-    color: var(--secondary-color);
+nav a:hover {
+    color: var(--primary-color);
 }
 
 /* Hero Section */
 .hero {
-    text-align: center;
-    padding: 100px 0;
-    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-    color: var(--white);
+    padding: 120px 0 80px;
+}
+
+.hero .greeting {
+    font-family: var(--font-mono);
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 1.1rem;
 }
 
 .hero h2 {
-    font-size: 3rem;
-    margin-bottom: 20px;
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    max-width: 800px;
+    line-height: 1.3;
 }
 
-.hero p {
-    font-size: 1.2rem;
-    max-width: 600px;
-    margin: 0 auto;
+/* Sections */
+.section-title {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    margin-bottom: 50px;
+    color: var(--primary-color);
 }
 
 /* Projects Section */
 .projects-section {
-    padding: 60px 0;
-}
-
-.projects-section h2 {
-    text-align: center;
-    margin-bottom: 40px;
-    font-size: 2.5rem;
-    color: var(--primary-color);
+    padding: 80px 0;
 }
 
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 30px;
 }
 
 .project-card {
-    background: var(--white);
+    background: var(--surface-color);
+    border: 1px solid rgba(255,255,255,0.05);
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    padding: 25px;
-    transition: transform 0.3s ease;
+    padding: 30px;
+    transition: transform 0.2s, border-color 0.2s;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -118,123 +138,170 @@ nav ul li a:hover {
 
 .project-card:hover {
     transform: translateY(-5px);
+    border-color: rgba(0, 255, 157, 0.3);
 }
 
 .project-card h3 {
-    color: var(--primary-color);
+    font-size: 1.3rem;
     margin-bottom: 15px;
-    font-size: 1.5rem;
-    padding-right: 30px;
+    font-family: var(--font-mono);
 }
 
 .project-card p {
-    margin-bottom: 15px;
-    color: #666;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 0.95rem;
     flex-grow: 1;
 }
 
 .project-tech {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 25px;
 }
 
 .tech-tag {
-    background: #e1e8ed;
+    background: rgba(0, 255, 157, 0.08);
     color: var(--primary-color);
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.85rem;
-    font-weight: bold;
-}
-
-.project-card .btn {
-    display: inline-block;
-    align-self: flex-start;
-}
-
-.delete-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px;
+    padding: 4px 10px;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.3s;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
 }
 
-.delete-btn:hover {
-    background: #c0392b;
+.project-card .btn-outline {
+    align-self: flex-start;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    border: 1px solid var(--primary-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.project-card .btn-outline:hover {
+    background: var(--primary-color);
+    color: var(--bg-color);
 }
 
 /* Add Project Section */
 .add-project-section {
-    background: var(--white);
-    padding: 60px 0;
-}
-
-.add-project-section h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: var(--primary-color);
+    padding: 80px 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 #add-project-form {
-    max-width: 600px;
-    margin: 0 auto;
-    background: var(--bg-color);
-    padding: 30px;
+    background: var(--surface-color);
+    padding: 40px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: bold;
-    color: var(--primary-color);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 12px 15px;
+    background: var(--bg-color);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-primary);
     border-radius: 4px;
-    font-family: inherit;
+    font-family: var(--font-sans);
+    transition: border-color 0.2s;
 }
 
-/* Button */
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
 .btn {
-    display: inline-block;
-    background: var(--secondary-color);
-    color: var(--white);
-    padding: 10px 20px;
-    text-decoration: none;
+    background: var(--primary-color);
+    color: var(--bg-color);
     border: none;
+    padding: 12px 28px;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 600;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.3s ease;
+    transition: opacity 0.2s;
 }
 
 .btn:hover {
-    background: #2980b9;
+    opacity: 0.8;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+    background: var(--danger-color);
+    color: white;
 }
 
 /* Footer */
 footer {
-    background: var(--primary-color);
-    color: var(--white);
     text-align: center;
-    padding: 20px 0;
+    padding: 40px 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 40px;
+}
+
+.admin-indicator {
+    color: var(--primary-color);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+
+/* Edit Mode Toggles */
+.admin-only {
+    display: none !important;
+}
+
+body.edit-mode .admin-only {
+    display: block !important;
+}
+
+body.edit-mode li.admin-only {
+    display: list-item !important;
+}
+
+body.edit-mode button.admin-only {
+    display: inline-block !important;
+}
+
+/* Add Project button alignment */
+body.edit-mode .projects-section .container {
+    position: relative;
 }
