@@ -55,7 +55,6 @@ body {
     border-radius: 50%;
     z-index: 9999;
     cursor: pointer;
-    border: 2px solid var(--primary-color);
     box-shadow: 0 0 10px rgba(0, 255, 157, 0.4);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }

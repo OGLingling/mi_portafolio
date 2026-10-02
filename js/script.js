@@ -19,8 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Login Modal Handlers
     loginTrigger.addEventListener('click', () => {
-        loginModal.classList.add('show');
-        usernameInput.focus();
+        if (isEditMode) {
+            // Logout
+            if(confirm('¿Deseas cerrar la sesión de administrador?')) {
+                isEditMode = false;
+                document.body.classList.remove('edit-mode');
+                loginTrigger.title = "Acceso Admin";
+            }
+        } else {
+            loginModal.classList.add('show');
+            usernameInput.focus();
+        }
     });
 
     closeModal.addEventListener('click', () => {
@@ -45,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user === 'LazyEngineer' && pass === 'amoprogramar') {
             isEditMode = true;
             document.body.classList.add('edit-mode');
+            loginTrigger.title = "Cerrar Sesión";
             loginModal.classList.remove('show');
             usernameInput.value = '';
             passwordInput.value = '';
