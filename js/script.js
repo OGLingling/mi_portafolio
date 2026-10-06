@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Set current year in footer
+    // API URL
+    const API_URL = 'http://localhost:3000/api';
+
     document.getElementById('year').textContent = new Date().getFullYear();
 
     const form = document.getElementById('add-project-form');
@@ -11,6 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const loginError = document.getElementById('login-error');
+    
+    // Logout Modal
+    const logoutModal = document.getElementById('logout-modal');
+    const closeLogoutModal = document.getElementById('close-logout-modal');
+    const logoutBtn = document.getElementById('logout-btn');
+
     const terminalBody = document.getElementById('terminal-body');
 
     // 1. Manejo del Modo Admin - SIEMPRE inactivo al inicio
@@ -20,12 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Login Modal Handlers
     loginTrigger.addEventListener('click', () => {
         if (isEditMode) {
-            // Logout
-            if(confirm('¿Deseas cerrar la sesión de administrador?')) {
-                isEditMode = false;
-                document.body.classList.remove('edit-mode');
-                loginTrigger.title = "Acceso Admin";
-            }
+            logoutModal.classList.add('show');
         } else {
             loginModal.classList.add('show');
             usernameInput.focus();
@@ -39,33 +42,61 @@ document.addEventListener('DOMContentLoaded', () => {
         passwordInput.value = '';
     });
 
-    // Cierra el modal si se hace clic afuera del contenido
+    closeLogoutModal.addEventListener('click', () => {
+        logoutModal.classList.remove('show');
+    });
+
     window.addEventListener('click', (e) => {
         if (e.target === loginModal) {
             loginModal.classList.remove('show');
             loginError.style.display = 'none';
         }
-    });
-
-    loginBtn.addEventListener('click', () => {
-        const user = usernameInput.value.trim();
-        const pass = passwordInput.value;
-
-        if (user === 'LazyEngineer' && pass === 'amoprogramar') {
-            isEditMode = true;
-            document.body.classList.add('edit-mode');
-            loginTrigger.title = "Cerrar Sesión";
-            loginModal.classList.remove('show');
-            usernameInput.value = '';
-            passwordInput.value = '';
-            loginError.style.display = 'none';
-        } else {
-            loginError.style.display = 'block';
-            passwordInput.value = '';
+        if (e.target === logoutModal) {
+            logoutModal.classList.remove('show');
         }
     });
 
-    // Permitir enviar el form con Enter
+    // Logout Action
+    logoutBtn.addEventListener('click', () => {
+        isEditMode = false;
+        document.body.classList.remove('edit-mode');
+        loginTrigger.title = "Acceso Admin";
+        logoutModal.classList.remove('show');
+    });
+
+    // Login Action (API POSTGRESQL)
+    loginBtn.addEventListener('click', async () => {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                isEditMode = true;
+                document.body.classList.add('edit-mode');
+                loginTrigger.title = "Cerrar Sesión";
+                loginModal.classList.remove('show');
+                usernameInput.value = '';
+                passwordInput.value = '';
+                loginError.style.display = 'none';
+            } else {
+                loginError.textContent = "> Acceso denegado. Credenciales incorrectas.";
+                loginError.style.display = 'block';
+                passwordInput.value = '';
+            }
+        } catch (err) {
+            console.error('Error conectando con el backend', err);
+            loginError.textContent = "> Error de conexión. ¿Backend encendido?";
+            loginError.style.display = 'block';
+        }
+    });
+
     passwordInput.addEventListener('keypress', (e) => {
         if(e.key === 'Enter') {
             loginBtn.click();
@@ -245,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         revealObserver.observe(el);
     });
 
-    // 4. Gestión de Proyectos
+    // 4. Gestión de Proyectos con PostgreSQL API
     loadProjects();
 
     form.addEventListener('submit', (e) => {
@@ -260,9 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const technologies = techString.split(',').map(tech => tech.trim()).filter(tech => tech !== '');
 
         if (fileInput.files && fileInput.files[0]) {
-            compressImage(fileInput.files[0], (base64Image) => {
+            compressImage(fileInput.files[0], async (base64Image) => {
                 const newProject = {
-                    id: Date.now().toString(),
                     title: title,
                     imageUrl: base64Image,
                     description: desc,
@@ -271,11 +301,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 try {
-                    saveProject(newProject);
-                    renderProject(newProject, true); 
-                    form.reset();
+                    const response = await fetch(`${API_URL}/projects`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newProject)
+                    });
+                    
+                    if(response.ok) {
+                        const savedProject = await response.json();
+                        // Re-parse technologies ya que en BD se guarda como string CSV
+                        savedProject.technologies = savedProject.technologies ? savedProject.technologies.split(',') : [];
+                        renderProject(savedProject, true); 
+                        form.reset();
+                    } else {
+                        alert('Error del servidor al guardar el proyecto.');
+                    }
                 } catch (err) {
-                    alert('Error: La memoria local está llena. Intenta eliminar proyectos antiguos antes de agregar nuevos.');
+                    alert('Error de conexión. Asegúrate que la base de datos y backend están corriendo.');
                 }
             });
         }
@@ -318,46 +360,19 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    function saveProject(project) {
-        let projects = getProjects();
-        projects.push(project);
-        localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-    }
-
-    function getProjects() {
-        let projects;
-        if(localStorage.getItem('portfolio_projects') === null) {
-            projects = [];
-            if (projects.length === 0) {
-                 const defaultProject = {
-                    id: '1',
-                    title: 'Automated Scripting Tool',
-                    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800',
-                    description: 'Herramienta de automatización desarrollada para reducir tiempos de despliegue y tareas repetitivas en servidores locales.',
-                    url: '#',
-                    technologies: ['Python', 'Bash', 'Docker']
-                 };
-                 const defaultProject2 = {
-                    id: '2',
-                    title: 'API Gateway Microservicio',
-                    imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800',
-                    description: 'Servicio centralizado para enrutamiento y rate-limiting de un ecosistema de aplicaciones distribuidas.',
-                    url: '#',
-                    technologies: ['Node.js', 'Redis', 'Express']
-                 };
-                 projects.push(defaultProject, defaultProject2);
-                 localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-            }
-        } else {
-            projects = JSON.parse(localStorage.getItem('portfolio_projects'));
-        }
-        return projects;
-    }
-
-    function loadProjects() {
+    async function loadProjects() {
         projectsGrid.innerHTML = '';
-        const projects = getProjects();
-        projects.forEach(project => renderProject(project, false));
+        try {
+            const response = await fetch(`${API_URL}/projects`);
+            if (response.ok) {
+                const projects = await response.json();
+                projects.forEach(project => renderProject(project, false));
+            } else {
+                projectsGrid.innerHTML = '<p style="color:red">> Error cargando proyectos de la base de datos.</p>';
+            }
+        } catch (err) {
+            projectsGrid.innerHTML = '<p style="color:var(--text-secondary)">> Sin conexión al backend PostgreSQL. Ejecuta el servidor para visualizar proyectos.</p>';
+        }
     }
 
     function renderProject(project, animateNew = false) {
@@ -379,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         let linkHTML = project.url ? `<a href="${project.url}" target="_blank" class="btn-outline">Ver Repositorio</a>` : '';
-        let imageHTML = project.imageUrl ? `<img src="${project.imageUrl}" alt="${project.title}" class="project-image">` : '';
+        let imageHTML = project.image_url ? `<img src="${project.image_url}" alt="${project.title}" class="project-image">` : project.imageUrl ? `<img src="${project.imageUrl}" alt="${project.title}" class="project-image">` : '';
 
         card.innerHTML = `
             ${imageHTML}
@@ -395,21 +410,26 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsGrid.appendChild(card);
     }
 
-    window.deleteProject = function(id) {
-        if(confirm('¿Eliminar registro del proyecto?')) {
-            let projects = getProjects();
-            projects = projects.filter(project => project.id !== id);
-            localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-            
-            const card = document.querySelector(`.project-card[data-id="${id}"]`);
-            if(card) {
-                card.style.transform = 'scale(0.8)';
-                card.style.opacity = '0';
-                setTimeout(() => {
-                    loadProjects(); 
-                }, 300);
-            } else {
-                loadProjects();
+    window.deleteProject = async function(id) {
+        if(confirm('¿Eliminar registro del proyecto de la base de datos?')) {
+            try {
+                const response = await fetch(`${API_URL}/projects/${id}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    const card = document.querySelector(`.project-card[data-id="${id}"]`);
+                    if(card) {
+                        card.style.transform = 'scale(0.8)';
+                        card.style.opacity = '0';
+                        setTimeout(() => loadProjects(), 300);
+                    } else {
+                        loadProjects();
+                    }
+                } else {
+                    alert("Error eliminando del servidor.");
+                }
+            } catch (err) {
+                alert("Error de red.");
             }
         }
     };
