@@ -277,9 +277,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 4. Gestión de Proyectos con PostgreSQL API
+    let editingProjectId = null;
+    const submitProjectBtn = document.getElementById('submit-project-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const imgHelp = document.getElementById('img-help');
+
+    // Reset Form a estado original
+    function resetFormState() {
+        form.reset();
+        editingProjectId = null;
+        submitProjectBtn.textContent = 'Deploy >_';
+        cancelEditBtn.style.display = 'none';
+        imgHelp.style.display = 'none';
+        document.getElementById('project-img').required = true;
+    }
+
+    cancelEditBtn.addEventListener('click', resetFormState);
+
     loadProjects();
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const title = document.getElementById('project-title').value;
@@ -290,36 +307,49 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const technologies = techString.split(',').map(tech => tech.trim()).filter(tech => tech !== '');
 
-        if (fileInput.files && fileInput.files[0]) {
-            compressImage(fileInput.files[0], async (base64Image) => {
-                const newProject = {
-                    title: title,
-                    imageUrl: base64Image,
-                    description: desc,
-                    url: url,
-                    technologies: technologies
-                };
+        const sendData = async (base64Image) => {
+            const projectData = {
+                title: title,
+                description: desc,
+                url: url,
+                technologies: technologies
+            };
+            
+            if (base64Image) {
+                projectData.imageUrl = base64Image;
+            }
 
-                try {
-                    const response = await fetch(`${API_URL}/projects`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(newProject)
-                    });
-                    
-                    if(response.ok) {
-                        const savedProject = await response.json();
-                        // Re-parse technologies ya que en BD se guarda como string CSV
-                        savedProject.technologies = savedProject.technologies ? savedProject.technologies.split(',') : [];
-                        renderProject(savedProject, true); 
-                        form.reset();
-                    } else {
-                        alert('Error del servidor al guardar el proyecto.');
-                    }
-                } catch (err) {
-                    alert('Error de conexión. Asegúrate que la base de datos y backend están corriendo.');
+            try {
+                const isEdit = editingProjectId !== null;
+                const endpoint = isEdit ? `${API_URL}/projects/${editingProjectId}` : `${API_URL}/projects`;
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(projectData)
+                });
+                
+                if(response.ok) {
+                    resetFormState();
+                    loadProjects(); // Recargar todos para mantener el orden correcto
+                } else {
+                    alert('Error del servidor al guardar el proyecto.');
                 }
-            });
+            } catch (err) {
+                alert('Error de conexión. Asegúrate que la base de datos y backend están corriendo.');
+            }
+        };
+
+        if (fileInput.files && fileInput.files[0]) {
+            compressImage(fileInput.files[0], sendData);
+        } else {
+            // Si es edición y no se subió imagen, mandamos sin imagen
+            if (editingProjectId) {
+                sendData(null);
+            } else {
+                alert("Selecciona una imagen para el nuevo proyecto.");
+            }
         }
     });
 
@@ -360,13 +390,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // Guardar proyectos en memoria temporal para poder editarlos fácilmente
+    let currentProjectsList = [];
+
     async function loadProjects() {
         projectsGrid.innerHTML = '';
         try {
             const response = await fetch(`${API_URL}/projects`);
             if (response.ok) {
-                const projects = await response.json();
-                projects.forEach(project => renderProject(project, false));
+                currentProjectsList = await response.json();
+                currentProjectsList.forEach(project => renderProject(project, false));
             } else {
                 projectsGrid.innerHTML = '<p style="color:red">> Error cargando proyectos de la base de datos.</p>';
             }
@@ -398,7 +431,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         card.innerHTML = `
             ${imageHTML}
-            <button class="delete-btn admin-only" onclick="deleteProject('${project.id}')" title="Eliminar proyecto"><i class="fas fa-trash"></i></button>
+            <div class="admin-actions admin-only" style="position: absolute; top: 15px; right: 15px; z-index: 10; display: flex; gap: 5px;">
+                <button class="edit-btn" onclick="editProject('${project.id}')" title="Editar proyecto" style="background: rgba(255, 189, 46, 0.1); color: #ffbd2e; border: 1px solid rgba(255, 189, 46, 0.3); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: all 0.3s;"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" onclick="deleteProject('${project.id}')" title="Eliminar proyecto" style="position: relative; top: 0; right: 0;"><i class="fas fa-trash"></i></button>
+            </div>
             <h3>${project.title}</h3>
             <p>${project.description}</p>
             <div class="project-tech">
@@ -409,6 +445,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         projectsGrid.appendChild(card);
     }
+
+    window.editProject = function(id) {
+        // Buscar proyecto
+        const proj = currentProjectsList.find(p => p.id == id);
+        if (!proj) return;
+
+        editingProjectId = id;
+        document.getElementById('project-title').value = proj.title;
+        document.getElementById('project-desc').value = proj.description;
+        document.getElementById('project-url').value = proj.url || '';
+        document.getElementById('project-tech').value = proj.technologies.join(', ');
+        
+        // El input file no se puede "llenar", así que lo hacemos opcional
+        document.getElementById('project-img').required = false;
+        imgHelp.style.display = 'block';
+
+        submitProjectBtn.textContent = 'Actualizar >_';
+        cancelEditBtn.style.display = 'block';
+
+        // Scroll suave al formulario
+        document.getElementById('agregar').scrollIntoView({ behavior: 'smooth' });
+    };
 
     window.deleteProject = async function(id) {
         if(confirm('¿Eliminar registro del proyecto de la base de datos?')) {
